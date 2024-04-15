@@ -6,8 +6,10 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\Image\Enums\Fit;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class User extends Authenticatable implements MustVerifyEmail, HasMedia
 {
@@ -23,7 +25,7 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia
         'email',
         'password',
         'timezone',
-        'profile_picture',
+        'avatar',
     ];
 
     /**
@@ -51,8 +53,33 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia
 
     public function registerMediaCollections(): void
     {
-        $this->addMediaCollection('profile_pictures')
+        $this->addMediaCollection('avatars')
             ->useDisk('public')
             ->singleFile();
+    }
+
+    public function registerMediaConversions(?Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->fit(Fit::Max, 128, 128)
+            ->performOnCollections('avatars')
+            ->nonQueued();
+
+        $this->addMediaConversion('medium')
+            ->fit(Fit::Max, 512, 512)
+            ->optimize()
+            ->performOnCollections('avatars');
+    }
+
+    public function getProfilePictureUrlAttribute(): string
+    {
+        if ($this->hasMedia('avatars')) {
+            return $this->getFirstMediaUrl('avatars', 'thumb');
+        }
+
+        $defaultImage = 'identicon';
+        $size = 64;
+        $hash = md5(strtolower(trim($this->email)));
+        return "https://www.gravatar.com/avatar/$hash?d=$defaultImage&s=$size";
     }
 }

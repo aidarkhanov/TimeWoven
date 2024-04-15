@@ -32,8 +32,10 @@ class ProfileController extends Controller
             $request->user()->email_verified_at = null;
         }
 
-        if ($request->hasFile('profile_picture')) {
-            $request->user()->addMediaFromRequest('profile_picture')->toMediaCollection('profile_pictures');
+        if ($request->filled('cropped_avatar')) {
+            $request->user()
+                ->addMediaFromBase64($request->input('cropped_avatar'))
+                ->toMediaCollection('avatars');
         }
 
         $request->user()->save();

@@ -14,9 +14,24 @@
         @csrf
     </form>
 
-    <form method="post" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="mt-6 space-y-6">
+    <form x-data="imageCropper('Crop Avatar')" method="post" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="mt-6 space-y-6">
         @csrf
         @method('patch')
+
+        <input type="hidden" x-model="croppedImage" name="cropped_avatar" />
+
+        <x-modal :name="__('Crop Avatar')">
+            <section class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg space-y-2">
+                <h2>Confirm Cropping</h2>
+
+                <div id="cropperContainer"></div>
+
+                <div class="flex items-center gap-2">
+                    <x-primary-button type="button" @click="cropImage">Crop</x-primary-button>
+                    <x-danger-button type="button" @click="closeModal">Cancel</x-danger-button>
+                </div>
+            </section>
+        </x-modal>
 
         <div>
             <x-input-label for="name" :value="__('Name')"/>
@@ -84,13 +99,17 @@
         </div>
 
         <div>
-            <x-input-label for="profile_picture" :value="__('Profile Picture')"/>
-            <x-text-input id="profile_picture" name="profile_picture" type="file" class="mt-1 block w-full" />
-            <x-input-error class="mt-2" :messages="$errors->get('profile_picture')"/>
+            <x-input-label for="avatar" :value="__('Avatar')" />
+            <x-file-input id="avatar" name="avatar" type="file" accept="image/*" @change="onFileSelect" @class('mt-1') />
+            <x-input-error class="mt-2" :messages="$errors->get('avatar')" />
+        </div>
 
-            @if ($user->hasMedia('profile_pictures'))
-                <img src="{{ $user->getFirstMediaUrl('profile_pictures') }}" alt="Profile Picture">
-            @endif
+        <div x-show="croppedImageSrc.length > 0">
+            <x-input-label for="preview" :value="__('Preview')" />
+
+            <div class="mt-1">
+                <img :src="croppedImageSrc" id="preview" alt="Cropped Avatar" class="rounded-lg w-20" />
+            </div>
         </div>
 
         <div class="flex items-center gap-4">
