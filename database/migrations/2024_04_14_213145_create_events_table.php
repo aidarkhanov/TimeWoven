@@ -16,7 +16,10 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained();
             $table->string('title');
             $table->text('description');
-            $table->timestamp('event_time');
+            $table->dateTime('start_time');
+            $table->dateTime('end_time')->nullable();
+            $table->string('external_link')->nullable();
+            $table->string('organiser_email')->nullable();
             $table->timestamps();
         });
     }

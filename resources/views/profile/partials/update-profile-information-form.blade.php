@@ -18,17 +18,17 @@
         @csrf
         @method('patch')
 
-        <input type="hidden" x-model="croppedImage" name="cropped_avatar" />
+        <input type="hidden" x-model="croppedImageBase64" name="cropped_avatar" />
 
         <x-modal :name="__('Crop Avatar')">
-            <section class="p-4 sm:p-8 bg-white dark:bg-gray-800 shadow sm:rounded-lg space-y-2">
-                <h2>Confirm Cropping</h2>
+            <section class="p-6 space-y-6">
+                <h2 class="text-lg font-medium text-gray-900">Confirm Cropping</h2>
 
                 <div id="cropperContainer"></div>
 
-                <div class="flex items-center gap-2">
+                <div class="flex justify-end space-x-2">
+                    <x-secondary-button type="button" @click="closeModal">Cancel</x-secondary-button>
                     <x-primary-button type="button" @click="cropImage">Crop</x-primary-button>
-                    <x-danger-button type="button" @click="closeModal">Cancel</x-danger-button>
                 </div>
             </section>
         </x-modal>
@@ -104,12 +104,12 @@
             <x-input-error class="mt-2" :messages="$errors->get('avatar')" />
         </div>
 
-        <div x-show="croppedImageSrc.length > 0">
+        <div x-show="croppedImageBase64.length > 0" style="display: none;">
             <x-input-label for="preview" :value="__('Preview')" />
 
-            <div class="mt-1">
-                <img :src="croppedImageSrc" id="preview" alt="Cropped Avatar" class="rounded-lg w-20" />
-            </div>
+            <img :src="croppedImageBase64" id="preview" alt="Cropped Avatar" class="rounded-lg w-20 mt-1" />
+
+            <x-secondary-button type="button" @class('mt-2') @click="reset">Remove</x-secondary-button>
         </div>
 
         <div class="flex items-center gap-4">
@@ -120,7 +120,7 @@
                     x-data="{ show: true }"
                     x-show="show"
                     x-transition
-                    x-init="setTimeout(() => show = false, 2000)"
+                    x-init="setTimeout(() => show = false, 3000)"
                     class="text-sm text-gray-600"
                 >{{ __('Saved.') }}</p>
             @endif

@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('event_id')->constrained();
             $table->string('email');
             $table->string('token')->unique();
-            $table->boolean('accepted')->default(false);
+            $table->enum('response', ['pending', 'accepted', 'declined', 'maybe'])->default('pending');
             $table->timestamps();
         });
     }
