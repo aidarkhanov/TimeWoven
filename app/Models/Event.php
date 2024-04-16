@@ -28,19 +28,6 @@ class Event extends Model implements HasMedia
         'organiser_email',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'start_time' => 'datetime',
-            'end_time' => 'datetime',
-        ];
-    }
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
