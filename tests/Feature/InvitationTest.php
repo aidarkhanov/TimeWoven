@@ -1,17 +1,45 @@
 <?php
 
+namespace Tests\Feature;
+
+use App\Http\Livewire\InvitationRespond;
+use App\Http\Livewire\InvitationSend;
 use App\Models\Event;
 use App\Models\Invitation;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Livewire\Livewire;
+use Tests\TestCase;
 
-use function Pest\Laravel\post;
+class InvitationTest extends TestCase
+{
+    use RefreshDatabase;
 
-it('handles an invitation response correctly', function () {
-    $event = Event::factory()->create();
-    $invitation = Invitation::factory()->create(['event_id' => $event->id]);
+    public function test_invitation_can_be_sent()
+    {
+        $user = User::factory()->create();
+        $event = Event::factory()->create(['user_id' => $user->id]);
 
-    $responseUrl = "/invitations/respond/{$invitation->token}";
-    post($responseUrl, ['response' => 'accepted'])
-        ->assertOk();
+        Livewire::actingAs($user)
+            ->test(InvitationSend::class, ['event' => $event])
+            ->set('email', 'test@example.com')
+            ->call('send')
+            ->assertHasNoErrors();
 
-    expect($invitation->fresh()->response)->toBe('accepted');
-});
+        $this->assertTrue(Invitation::where('email', 'test@example.com')->exists());
+    }
+
+    public function test_user_can_respond_to_invitation()
+    {
+        $invitation = Invitation::factory()->create();
+
+        Livewire::test(InvitationRespond::class, ['token' => $invitation->token])
+            ->call('respond', 'accepted')
+            ->assertHasNoErrors();
+
+        $this->assertDatabaseHas('invitations', [
+            'id' => $invitation->id,
+            'response' => 'accepted',
+        ]);
+    }
+}

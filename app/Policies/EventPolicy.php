@@ -3,9 +3,9 @@
 namespace App\Policies;
 
 use App\Models\Event;
+use App\Models\Invitation;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
-use Illuminate\Support\Facades\Log;
 
 class EventPolicy
 {
@@ -22,7 +22,14 @@ class EventPolicy
      */
     public function view(User $user, Event $event): bool
     {
-        //
+        if ($user->id === $event->user_id) {
+            return true;
+        }
+
+        return Invitation::where('event_id', $event->id)
+            ->where('email', $user->email)
+            ->where('response', 'accepted')
+            ->exists();
     }
 
     /**
@@ -36,11 +43,9 @@ class EventPolicy
     /**
      * Determine whether the user can update the model.
      */
-    public function update(?User $user, Event $event): Response
+    public function update(User $user, Event $event): bool
     {
-        return $user?->id === $event->user_id
-            ? Response::allow()
-            : Response::denyWithStatus(403);
+        return $user->id === $event->user_id;
     }
 
     /**
@@ -48,7 +53,7 @@ class EventPolicy
      */
     public function delete(User $user, Event $event): bool
     {
-        //
+        return $user->id === $event->user_id;
     }
 
     /**

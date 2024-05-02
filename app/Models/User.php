@@ -6,14 +6,17 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Spatie\Image\Enums\Fit;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
-use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Laravel\Fortify\TwoFactorAuthenticatable;
+use Laravel\Jetstream\HasProfilePhoto;
+use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements MustVerifyEmail, HasMedia
+class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasFactory, Notifiable, InteractsWithMedia;
+    use HasApiTokens;
+    use HasFactory;
+    use HasProfilePhoto;
+    use Notifiable;
+    use TwoFactorAuthenticatable;
 
     /**
      * The attributes that are mass assignable.
@@ -24,8 +27,6 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia
         'name',
         'email',
         'password',
-        'timezone',
-        'avatar',
     ];
 
     /**
@@ -36,6 +37,17 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia
     protected $hidden = [
         'password',
         'remember_token',
+        'two_factor_recovery_codes',
+        'two_factor_secret',
+    ];
+
+    /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'profile_photo_url',
     ];
 
     /**
@@ -49,37 +61,5 @@ class User extends Authenticatable implements MustVerifyEmail, HasMedia
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
-    }
-
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('avatars')
-            ->useDisk('public')
-            ->singleFile();
-    }
-
-    public function registerMediaConversions(?Media $media = null): void
-    {
-        $this->addMediaConversion('thumb')
-            ->fit(Fit::Max, 128, 128)
-            ->performOnCollections('avatars')
-            ->nonQueued();
-
-        $this->addMediaConversion('medium')
-            ->fit(Fit::Max, 512, 512)
-            ->optimize()
-            ->performOnCollections('avatars');
-    }
-
-    public function getProfilePictureUrlAttribute(): string
-    {
-        if ($this->hasMedia('avatars')) {
-            return $this->getFirstMediaUrl('avatars', 'thumb');
-        }
-
-        $defaultImage = 'identicon';
-        $size = 64;
-        $hash = md5(strtolower(trim($this->email)));
-        return "https://www.gravatar.com/avatar/$hash?d=$defaultImage&s=$size";
     }
 }

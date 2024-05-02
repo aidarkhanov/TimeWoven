@@ -2,26 +2,30 @@
 
 namespace App\Providers;
 
-use App\Models\Event;
-use App\Policies\EventPolicy;
+use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
 use Illuminate\Support\Facades\Gate;
-use Illuminate\Support\ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
 {
     /**
-     * Register services.
+     * The policy mappings for the application.
+     *
+     * @type array<string, string>
      */
-    public function register(): void
-    {
-        //
-    }
+    protected $policies = [
+        'App\Models\Event' => 'App\Policies\EventPolicy',
+    ];
 
     /**
-     * Bootstrap services.
+     * Register any authentication / authorization services.
      */
     public function boot(): void
     {
-        Gate::policy(Event::class, EventPolicy::class);
+        $this->registerPolicies();
+
+        // Example Gate, define additional gates as needed
+        Gate::define('edit-settings', function ($user) {
+            return $user->isAdmin;
+        });
     }
 }

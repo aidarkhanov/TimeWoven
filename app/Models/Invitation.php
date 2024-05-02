@@ -10,8 +10,16 @@ class Invitation extends Model
 {
     use HasFactory;
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
-        'event_id', 'email', 'token', 'response'
+        'event_id',
+        'email',
+        'token',
+        'response',
     ];
 
     public function event(): BelongsTo

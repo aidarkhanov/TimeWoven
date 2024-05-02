@@ -2,16 +2,13 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
-use Spatie\MediaLibrary\HasMedia;
-use Spatie\MediaLibrary\InteractsWithMedia;
 
-class Event extends Model implements HasMedia
+class Event extends Model
 {
-    use HasFactory, InteractsWithMedia;
+    use HasFactory;
 
     /**
      * The attributes that are mass assignable.
@@ -24,33 +21,10 @@ class Event extends Model implements HasMedia
         'description',
         'start_time',
         'end_time',
-        'external_link',
-        'organiser_email',
     ];
 
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
-    }
-
-    public function invitations(): HasMany
-    {
-        return $this->hasMany(Invitation::class);
-    }
-
-    /**
-     * Calculate the duration of the event in hours.
-     *
-     * @return int
-     */
-    public function getDurationAttribute(): int
-    {
-        return $this->start_time->diffInHours($this->end_time);
-    }
-
-    // Spatie Media Library integration
-    public function registerMediaCollections(): void
-    {
-        $this->addMediaCollection('gallery')->useDisk('public');
     }
 }
