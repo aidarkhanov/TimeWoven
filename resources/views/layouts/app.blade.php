@@ -38,6 +38,7 @@
 
         @stack('modals')
 
+        <!-- Scripts -->
         @filamentScripts
         @vite('resources/js/app.js')
     </body>
