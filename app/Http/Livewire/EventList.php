@@ -5,7 +5,9 @@ namespace App\Http\Livewire;
 use App\Models\Event;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\CreateAction;
+use Filament\Tables\Actions\DeleteAction;
+use Filament\Tables\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
@@ -24,51 +26,38 @@ class EventList extends Component implements HasForms, HasTable
             ->columns([
                 TextColumn::make('title'),
                 TextColumn::make('description')->limit(45),
-                TextColumn::make('start_time')->dateTime(), // Ensure proper date formatting
+                TextColumn::make('start_time')->dateTime(),
                 TextColumn::make('end_time')->dateTime(),
             ])
             ->headerActions([
-                Action::make('new')
+                CreateAction::make('new')
                     ->label(__('New Event'))
                     ->icon('heroicon-o-plus')
                     ->slideOver()
-                    ->form(EventForm::schema()),
+                    ->form(EventSchema::schema())
+                    ->mutateFormDataUsing(function ($data) {
+                        $data['user_id'] = auth()->id();
+
+                        return $data;
+                    }),
             ])
             ->actions([
-                Action::make('edit')
+                EditAction::make('edit')
                     ->label('Edit')
                     ->icon('heroicon-o-pencil')
                     ->slideOver()
                     ->modalHeading('Edit Event')
-                    ->form(EventForm::schema())
-                    ->fillForm(fn ($record) => [
-                        'title' => $record->title,
-                        'description' => $record->description,
-                        'start_time' => $record->start_time,
-                        'end_time' => $record->end_time,
-                    ])
-                    ->action(fn ($record, $data) => $record->fill($data)->save()),
-                Action::make('delete')
+                    ->form(EventSchema::schema()),
+                DeleteAction::make('delete')
                     ->label('Delete')
                     ->color('danger')
                     ->icon('heroicon-o-trash')
-                    ->requiresConfirmation()
-                    ->action(fn ($record) => $this->delete($record->id)),
-            ])
-            ->bulkActions([
-                // Define bulk actions if necessary
+                    ->requiresConfirmation(),
             ]);
     }
 
     public function render(): View
     {
         return view('livewire.event-list')->layoutData(['heading' => 'Events']);
-    }
-
-    public function delete($eventId): void
-    {
-        $event = Event::where('user_id', auth()->id())->findOrFail($eventId);
-        $event->delete();
-        session()->flash('message', 'Event deleted successfully.');
     }
 }

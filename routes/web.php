@@ -1,7 +1,7 @@
 <?php
 
-use App\Http\Livewire\EventForm;
 use App\Http\Livewire\EventList;
+use App\Http\Livewire\EventSchema;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -18,9 +18,6 @@ Route::middleware([
     })->name('dashboard');
 
     Route::prefix('events')->group(function () {
-        Route::get('/', EventList::class)->name('list-event');
-//        Route::get('/create', EventForm::class)->name('create-event');
-//        Route::get('/edit/{event_id}', EventForm::class)->name('edit-event');
+        Route::get('/', EventList::class)->name('event-list');
     });
-
 });

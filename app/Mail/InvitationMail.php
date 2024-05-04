@@ -40,9 +40,9 @@ class InvitationMail extends Mailable
         return new Content(
             view: 'emails.invitation',
             with: [
-                'eventTitle' => $this->event->title,
-                'eventDescription' => $this->event->description,
-                'responseUrl' => url("/respond-to-invitation/{$this->token}"),
+                'title' => $this->event->title,
+                'description' => $this->event->description,
+                'response' => url("/respond-to-invitation/{$this->token}"),
             ]
         );
     }

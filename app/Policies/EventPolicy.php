@@ -5,16 +5,18 @@ namespace App\Policies;
 use App\Models\Event;
 use App\Models\Invitation;
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
+use Illuminate\Auth\Access\HandlesAuthorization;
 
 class EventPolicy
 {
+    use HandlesAuthorization;
+
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        //
+        return false;
     }
 
     /**
@@ -37,7 +39,8 @@ class EventPolicy
      */
     public function create(User $user): bool
     {
-        //
+        // Assuming all authenticated users can create an event
+        return true;
     }
 
     /**
@@ -61,7 +64,9 @@ class EventPolicy
      */
     public function restore(User $user, Event $event): bool
     {
-        //
+        // Assuming only users who can delete can also restore the event
+        // This often aligns with soft delete capabilities
+        return $this->delete($user, $event);
     }
 
     /**
@@ -69,6 +74,8 @@ class EventPolicy
      */
     public function forceDelete(User $user, Event $event): bool
     {
-        //
+        // Assuming only admins or specific roles can permanently delete events
+        // Example of admin check, adjust according to your application's role management
+        return $user->is_admin;
     }
 }

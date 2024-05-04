@@ -6,7 +6,7 @@ use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\MarkdownEditor;
 use Filament\Forms\Components\TextInput;
 
-final class EventForm
+final class EventSchema
 {
     public static function schema(): array
     {
@@ -17,11 +17,12 @@ final class EventForm
             MarkdownEditor::make('description')
                 ->required(),
             DateTimePicker::make('start_time')
+                ->native(false)
                 ->seconds(false)
                 ->required(),
             DateTimePicker::make('end_time')
+                ->native(false)
                 ->seconds(false)
-                ->required()
                 ->after('start_time'),
         ];
     }
