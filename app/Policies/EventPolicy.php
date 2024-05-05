@@ -39,8 +39,7 @@ class EventPolicy
      */
     public function create(User $user): bool
     {
-        // Assuming all authenticated users can create an event
-        return true;
+        return $user->hasVerifiedEmail();
     }
 
     /**
