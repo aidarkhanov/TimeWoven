@@ -1,7 +1,6 @@
 <?php
 
 use App\Http\Livewire\EventList;
-use App\Http\Livewire\EventSchema;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
